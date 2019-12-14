@@ -36,7 +36,7 @@ class User private  constructor(
 
     private var _login: String? = null
 
-    private var login: String
+    var login: String
         set( value ) {
             _login = value?.toLowerCase()
         }
