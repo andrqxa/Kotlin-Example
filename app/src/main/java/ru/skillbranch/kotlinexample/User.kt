@@ -132,6 +132,38 @@ class User private  constructor(
     private fun setAccessCodeToUser(phone: String, code: String) {
         println("... sending access code: $code on $phone")
     }
+
+    companion object Factory {
+        fun makeUser(
+            fullName: String,
+            email: String? = null,
+            password: String? = null,
+            phone: String? = null
+        ): User {
+            val (firstName, lastName) = fullName.fullNameToPair()
+
+            return when {
+                !phone.isNullOrBlank() -> User(firstName, lastName, phone)
+                !email.isNullOrBlank() && !password.isNullOrBlank() ->  User(firstName, lastName, email, password)
+                else -> throw IllegalArgumentException("Email or phone must be not null or blank")
+            }
+        }
+
+        private fun String.fullNameToPair(): Pair<String, String?> {
+            return this.split(" ")
+                .filter { it.isNotBlank() }
+                .run {
+                    when(size) {
+                        1 -> first() to null
+                        2 -> first() to last()
+                        else -> throw IllegalArgumentException("Fullname must contain only first nme " +
+                                "and last name, current split result $this@fullNameToPair")
+                    }
+                }
+        }
+    }
 }
+
+
 
 
