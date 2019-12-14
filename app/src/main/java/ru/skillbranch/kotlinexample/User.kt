@@ -1,9 +1,13 @@
 package ru.skillbranch.kotlinexample
 
+import androidx.annotation.VisibleForTesting
+import java.lang.IllegalArgumentException
+import java.lang.StringBuilder
 import java.math.BigInteger
 import java.security.MessageDigest
+import java.security.SecureRandom
 
-class User (
+class User private  constructor(
     private val firstName: String,
     private val lastName: String?,
     email: String? = null,
@@ -38,7 +42,14 @@ class User (
         }
         get() = _login!!
 
+    private val salt: String by lazy {
+        ByteArray(16).also { SecureRandom().nextBytes(it) }.toString()
+    }
+
     private lateinit var passwordHash: String
+
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    var accessCode: String? = null
 
 //    for email
     constructor(
@@ -58,10 +69,21 @@ class User (
         rawPhone: String
     ): this ( firstName, lastName, rawPhone = rawPhone,  meta = mapOf("auth" to "phone" )){
         println("Secondary phone constructor")
+        val code = generateAccessCode()
+        passwordHash = encrypt(code)
+        accessCode = code
+        setAccessCodeToUser(rawPhone, code)
     }
 
     init {
         println("First init block, primary constructor was called")
+
+        check(!firstName.isBlank()){ "FirstName must be not blank" }
+        check(email.isNullOrBlank() || rawPhone.isNullOrBlank()){ "Email or phone must be not blank" }
+
+        phone = rawPhone
+        login = email ?: phone!!
+
         userInfo = """
             firstName: $firstName
             lastName: $lastName
@@ -74,13 +96,41 @@ class User (
         """.trimIndent()
     }
 
-    private fun encrypt(password: String) = password.md5()//don't o that
+    fun checkPassword(pass: String) = encrypt(pass) == passwordHash
+
+    fun changePassword(oldPass: String, newPass: String) {
+        if(checkPassword(oldPass)){
+            passwordHash = encrypt(newPass)
+        } else {
+            throw IllegalArgumentException("The entered password does not match the current password")
+        }
+    }
+
+    private fun encrypt(password: String) = salt.plus(password).md5()//password with salt
 
     private fun String.md5(): String {
         val md = MessageDigest.getInstance("MD5") //get MD5 algorithm
         val digest = md.digest(toByteArray()) //16 byte
         val hexString = BigInteger(1, digest).toString(16)
         return hexString.padStart(32, '0') //fill from beginning until length of 32
+    }
+
+
+
+    private fun generateAccessCode(): String {
+        val possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+        return StringBuilder().apply {
+            repeat(6){
+                (possible.indices).random().also { index ->
+                    append(possible[index])
+                }
+            }
+        }.toString()
+    }
+
+    private fun setAccessCodeToUser(phone: String, code: String) {
+        println("... sending access code: $code on $phone")
     }
 }
 
