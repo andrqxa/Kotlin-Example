@@ -18,17 +18,16 @@ class User private  constructor(
 
     private val fullName: String
         get() = listOfNotNull(firstName, lastName)
-            .joinToString { " " }
+            .joinToString(" ")
             .capitalize()
 
     private val initials: String?
         get() = listOfNotNull(firstName, lastName)
             .map { it.first().toUpperCase() }
-            .joinToString { " " }
-            .capitalize()
+            .joinToString(" ")
 
 
-    private var phone: String? = null
+    var phone: String? = null
         set( value ) {
             field = value?.replace("[^+\\d]".toRegex(), "")
         }
@@ -57,7 +56,7 @@ class User private  constructor(
         lastName: String?,
         email: String,
         password: String
-    ): this ( firstName, lastName, email = email,  meta = mapOf("auth" to "phone" )){
+    ): this ( firstName, lastName, email = email,  meta = mapOf("auth" to "password" )){
         println("Secondary mail constructor")
         passwordHash = encrypt(password)
     }
@@ -67,7 +66,7 @@ class User private  constructor(
         firstName: String,
         lastName: String?,
         rawPhone: String
-    ): this ( firstName, lastName, rawPhone = rawPhone,  meta = mapOf("auth" to "phone" )){
+    ): this ( firstName, lastName, rawPhone = rawPhone,  meta = mapOf("auth" to "sms" )){
         println("Secondary phone constructor")
         val code = generateAccessCode()
         passwordHash = encrypt(code)
