@@ -1,6 +1,7 @@
 package ru.skillbranch.kotlinexample
 
 import androidx.annotation.VisibleForTesting
+import ru.skillbranch.kotlinexample.extensions.normalizePhone
 import java.lang.IllegalArgumentException
 import java.lang.StringBuilder
 import java.math.BigInteger
@@ -29,7 +30,7 @@ class User private  constructor(
 
     var phone: String? = null
         set( value ) {
-            field = value.normalizePhone()
+            field = value?.normalizePhone()
         }
 
 
@@ -137,13 +138,7 @@ class User private  constructor(
         return code
     }
 
-    private fun String?.normalizePhone(): String? {
-        return this
-            ?.replace("-", "")
-            ?.replace("(", "")
-            ?.replace(")", "")
-            ?.replace("\\s".toRegex(), "")
-    }
+
 
     companion object Factory {
         fun makeUser(
@@ -173,14 +168,6 @@ class User private  constructor(
                     }
                 }
         }
-
-//        fun String?.normalizePhone(): String? {
-//            return this
-//                ?.replace("-", "")
-//                ?.replace("(", "")
-//                ?.replace(")", "")
-//                ?.replace("\\s".toRegex(), "")
-//        }
     }
 }
 
