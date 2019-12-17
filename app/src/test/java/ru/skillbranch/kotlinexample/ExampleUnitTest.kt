@@ -1,6 +1,8 @@
 package ru.skillbranch.kotlinexample
 
+import org.junit.After
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Test
 
 /**
@@ -9,6 +11,10 @@ import org.junit.Test
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class ExampleUnitTest {
+    @After
+    fun beforeTest() = UserHolder.clearMap()
+
+
     @Test
     fun register_user_success() {
         val holder = UserHolder
@@ -145,27 +151,27 @@ class ExampleUnitTest {
         Assert.assertNull(failResult)
     }
 
-//    @Test
-//    fun request_access_code() {
-//        val holder = UserHolder
-//        val user = holder.registerUserByPhone("John Doe", "+7 (917) 971-11-11")
-//        val oldAccess = user.accessCode
-//        holder.requestAccessCode("+7 (917) 971-11-11")
-//
-//        val expectedInfo = """
-//            firstName: John
-//            lastName: Doe
-//            login: +79179711111
-//            fullName: John Doe
-//            initials: J D
-//            email: null
-//            phone: +79179711111
-//            meta: {auth=sms}
-//        """.trimIndent()
-//
-//        val successResult =  holder.loginUser("+7 (917) 971-11-11", user.accessCode!!)
-//
-//        Assert.assertNotEquals(oldAccess, user.accessCode!!)
-//        Assert.assertEquals(expectedInfo, successResult)
-//    }
+    @Test
+    fun request_access_code() {
+        val holder = UserHolder
+        val user = holder.registerUserByPhone("John Doe", "+7 (917) 971-11-11")
+        val oldAccess = user.accessCode
+        holder.requestAccessCode("+7 (917) 971-11-11")
+
+        val expectedInfo = """
+            firstName: John
+            lastName: Doe
+            login: +79179711111
+            fullName: John Doe
+            initials: J D
+            email: null
+            phone: +79179711111
+            meta: {auth=sms}
+        """.trimIndent()
+
+        val successResult =  holder.loginUser("+7 (917) 971-11-11", user.accessCode!!)
+
+        Assert.assertNotEquals(oldAccess, user.accessCode!!)
+        Assert.assertEquals(expectedInfo, successResult)
+    }
 }

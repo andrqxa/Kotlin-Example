@@ -29,7 +29,7 @@ class User private  constructor(
 
     var phone: String? = null
         set( value ) {
-            field = value?.replace("[^+\\d]".toRegex(), "")
+            field = value.normalizePhone()
         }
 
 
@@ -68,9 +68,7 @@ class User private  constructor(
         rawPhone: String
     ): this ( firstName, lastName, rawPhone = rawPhone,  meta = mapOf("auth" to "sms" )){
         println("Secondary phone constructor")
-        val code = generateAccessCode()
-        passwordHash = encrypt(code)
-        accessCode = code
+        val code = changeAccessCode()
         setAccessCodeToUser(rawPhone, code)
     }
 
@@ -132,6 +130,21 @@ class User private  constructor(
         println("... sending access code: $code on $phone")
     }
 
+    fun changeAccessCode(): String {
+        val code = generateAccessCode()
+        passwordHash = encrypt(code)
+        accessCode = code
+        return code
+    }
+
+    private fun String?.normalizePhone(): String? {
+        return this
+            ?.replace("-", "")
+            ?.replace("(", "")
+            ?.replace(")", "")
+            ?.replace("\\s".toRegex(), "")
+    }
+
     companion object Factory {
         fun makeUser(
             fullName: String,
@@ -160,6 +173,14 @@ class User private  constructor(
                     }
                 }
         }
+
+//        fun String?.normalizePhone(): String? {
+//            return this
+//                ?.replace("-", "")
+//                ?.replace("(", "")
+//                ?.replace(")", "")
+//                ?.replace("\\s".toRegex(), "")
+//        }
     }
 }
 
