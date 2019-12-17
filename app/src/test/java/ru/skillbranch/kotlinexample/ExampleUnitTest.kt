@@ -3,6 +3,7 @@ package ru.skillbranch.kotlinexample
 import org.junit.After
 import org.junit.Assert
 import org.junit.Test
+import ru.skillbranch.kotlinexample.extensions.dropLastUntil
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -178,5 +179,45 @@ class ExampleUnitTest {
 
         Assert.assertNotEquals(oldAccess, user.accessCode!!)
         Assert.assertEquals(expectedInfo, successResult)
+    }
+
+    @Test
+    fun drop_last_until_list_of_int() {
+        val source = listOf(1, 2, 3)
+        val result = source.dropLastUntil { it == 2 }.toString()
+        val expectedInfo = "[1]"
+        Assert.assertEquals(expectedInfo, result)
+    }
+
+    @Test
+    fun drop_last_until_list_of_empty() {
+        val source = listOf(1, 2, 3)
+        val result = source.dropLastUntil { it == 1 }.toString()
+        val expectedInfo = "[]"
+        Assert.assertEquals(expectedInfo, result)
+    }
+
+    @Test
+    fun drop_last_until_full() {
+        val source = listOf(1, 2, 3)
+        val result = source.dropLastUntil { it == 4 }.toString()
+        val expectedInfo = "[1, 2, 3]"
+        Assert.assertEquals(expectedInfo, result)
+    }
+
+    @Test
+    fun drop_last_until_list_of_string() {
+        val source = "House Nymeros Martell of Sunspear".split(" ")
+        val result = source.dropLastUntil { it == "of" }.toString()
+        val expectedInfo = "[House, Nymeros, Martell]"
+        Assert.assertEquals(expectedInfo, result)
+    }
+
+    @Test
+    fun drop_last_until_list_of_string_2() {
+        val source = "House Nymeros Martell of Sunspear".split(" ")
+        val result = source.dropLastUntil { it == "Nymeros" }.toString()
+        val expectedInfo = "[House]"
+        Assert.assertEquals(expectedInfo, result)
     }
 }
