@@ -1,6 +1,7 @@
 package ru.skillbranch.kotlinexample.extensions
 
 fun String.normalizePhone(): String? {
+    println(this)
     val shortString = this.trim()
     val templatePhone = "\\+\\s*\\d[^\\p{L}]*".toRegex()
     if(shortString.isBlank() || !templatePhone.matches(shortString)){
