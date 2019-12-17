@@ -2,7 +2,6 @@ package ru.skillbranch.kotlinexample
 
 import org.junit.After
 import org.junit.Assert
-import org.junit.Before
 import org.junit.Test
 
 /**
@@ -55,7 +54,7 @@ class ExampleUnitTest {
     @Test
     fun register_user_by_phone_success() {
         val holder = UserHolder
-        val user = holder.registerUserByPhone("John Doe", "+7 (917) 971 11-11")
+        val user = holder.registerUserByPhone("John Doe", "+ 7 (917) 971 11-11")
         val expectedInfo = """
             firstName: John
             lastName: Doe
