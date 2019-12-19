@@ -62,5 +62,34 @@ object UserHolder {
             throw IllegalArgumentException("A user with this phone is not exist")
         }
     }
+
+    fun importUsers(source: List<String>): List<User> {
+        val result = mutableListOf<User>()
+        for (item in source) {
+            val (rawFullName, rawEmail, rawSaltHash, rawPhone) = item.split(";")
+            val fullName = rawFullName.trim()
+            val email = normalizeField(rawEmail)
+            val saltHash = normalizeField(rawSaltHash)
+            val phone = normalizeField(rawPhone)?.normalizePhone()
+            val password: String?
+            password = when (saltHash) {
+                null -> null
+                else -> {
+                    val (salt, hash) = saltHash.trim().split(":")
+                    "${salt}${hash}"
+                }
+            }
+            val currentUser = User.makeCsvUser(
+                fullName = fullName,
+                email = email,
+                phone = phone,
+                password = password
+            )
+            result.add(currentUser)
+        }
+        return result
+    }
+
+    private fun normalizeField(source: String) = if (source.isEmpty()) null else source.trim()
 }
 

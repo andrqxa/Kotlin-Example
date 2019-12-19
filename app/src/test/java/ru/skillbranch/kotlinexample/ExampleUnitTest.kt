@@ -220,4 +220,39 @@ class ExampleUnitTest {
         val expectedInfo = "[House]"
         Assert.assertEquals(expectedInfo, result)
     }
+
+    @Test
+    fun import_user_csv_phone() {
+        val source = listOf(" John Doe ;;;+8(050)147-74-12;")
+        val result = UserHolder.importUsers(source)[0].userInfo
+        val expectedInfo = """
+            firstName: John
+            lastName: Doe
+            login: +80501477412
+            fullName: John Doe
+            initials: J D
+            email: null
+            phone: +80501477412
+            meta: {src=csv}
+        """.trimIndent()
+        Assert.assertEquals(expectedInfo, result)
+    }
+
+    @Test
+    fun import_user_csv_email() {
+        val source =
+            listOf(" John Doe ;JohnDoe@unknow.com;[B@7591083d:c6adb4becdc64e92857e1e2a0fd6af84;")
+        val result = UserHolder.importUsers(source)[0].userInfo
+        val expectedInfo = """
+            firstName: John
+            lastName: Doe
+            login: johndoe@unknow.com
+            fullName: John Doe
+            initials: J D
+            email: JohnDoe@unknow.com
+            phone: null
+            meta: {src=csv}
+        """.trimIndent()
+        Assert.assertEquals(expectedInfo, result)
+    }
 }

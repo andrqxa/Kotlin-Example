@@ -2,8 +2,6 @@ package ru.skillbranch.kotlinexample
 
 import androidx.annotation.VisibleForTesting
 import ru.skillbranch.kotlinexample.extensions.normalizePhone
-import java.lang.IllegalArgumentException
-import java.lang.StringBuilder
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -15,7 +13,7 @@ class User private  constructor(
     rawPhone: String? = null,
     meta: Map<String, Any>? = null
 ){
-    val userInfo: String
+    var userInfo: String
 
     private val fullName: String
         get() = listOfNotNull(firstName, lastName)
@@ -38,7 +36,7 @@ class User private  constructor(
 
     var login: String
         set( value ) {
-            _login = value?.toLowerCase()
+            _login = value.toLowerCase()
         }
         get() = _login!!
 
@@ -57,20 +55,44 @@ class User private  constructor(
         lastName: String?,
         email: String,
         password: String
-    ): this ( firstName, lastName, email = email,  meta = mapOf("auth" to "password" )){
+) : this(firstName, lastName, email = email, meta = mapOf("auth" to Method.password)) {
         println("Secondary mail constructor")
         passwordHash = encrypt(password)
     }
+
 
     //    for phone
     constructor(
         firstName: String,
         lastName: String?,
         rawPhone: String
-    ): this ( firstName, lastName, rawPhone = rawPhone,  meta = mapOf("auth" to "sms" )){
+    ) : this(firstName, lastName, rawPhone = rawPhone, meta = mapOf("auth" to Method.sms)) {
         println("Secondary phone constructor")
         val code = changeAccessCode()
         setAccessCodeToUser(rawPhone, code)
+    }
+
+    //    for csv_phone
+    constructor(
+        firstName: String,
+        lastName: String?,
+        rawPhone: String,
+        method: Method
+    ) : this(firstName, lastName, rawPhone = rawPhone, meta = mapOf("src" to method.name)) {
+        println("Secondary phone csv constructor")
+        val code = changeAccessCode()
+        setAccessCodeToUser(rawPhone, code)
+    }
+
+    //    for csv_mail
+    constructor(
+        firstName: String,
+        lastName: String?,
+        email: String,
+        saltHash: String,
+        method: Method
+    ) : this(firstName, lastName, email = email, meta = mapOf("src" to method.name)) {
+        passwordHash = saltHash
     }
 
     init {
@@ -138,8 +160,6 @@ class User private  constructor(
         return code
     }
 
-
-
     companion object Factory {
         fun makeUser(
             fullName: String,
@@ -148,10 +168,29 @@ class User private  constructor(
             phone: String? = null
         ): User {
             val (firstName, lastName) = fullName.fullNameToPair()
-
             return when {
                 !phone.isNullOrBlank() -> User(firstName, lastName, phone)
                 !email.isNullOrBlank() && !password.isNullOrBlank() ->  User(firstName, lastName, email, password)
+                else -> throw IllegalArgumentException("Email or phone must be not null or blank")
+            }
+        }
+
+        fun makeCsvUser(
+            fullName: String,
+            email: String? = null,
+            phone: String? = null,
+            password: String? = null
+        ): User {
+            val (firstName, lastName) = fullName.fullNameToPair()
+            return when {
+                !phone.isNullOrBlank() -> User(firstName, lastName, phone, Method.csv)
+                !email.isNullOrBlank() && !password.isNullOrBlank() -> User(
+                    firstName,
+                    lastName,
+                    email,
+                    password,
+                    Method.csv
+                )
                 else -> throw IllegalArgumentException("Email or phone must be not null or blank")
             }
         }
@@ -169,6 +208,12 @@ class User private  constructor(
                 }
         }
     }
+}
+
+enum class Method {
+    sms,
+    password,
+    csv
 }
 
 
