@@ -71,19 +71,25 @@ object UserHolder {
             val email = normalizeField(rawEmail)
             val saltHash = normalizeField(rawSaltHash)
             val phone = normalizeField(rawPhone)?.normalizePhone()
-            val password: String?
-            password = when (saltHash) {
-                null -> null
+            val salt: String?
+            val hash: String?
+            when (saltHash) {
+                null -> {
+                    salt = null
+                    hash = null
+                }
                 else -> {
-                    val (salt, hash) = saltHash.trim().split(":")
-                    "${salt}${hash}"
+                    val (drawSalt, drawHash) = saltHash.trim().split(":")
+                    salt = normalizeField(drawSalt)
+                    hash = normalizeField(drawHash)
                 }
             }
             val currentUser = User.makeCsvUser(
                 fullName = fullName,
                 email = email,
                 phone = phone,
-                password = password
+                salt = salt,
+                hash = hash
             )
             result.add(currentUser)
         }

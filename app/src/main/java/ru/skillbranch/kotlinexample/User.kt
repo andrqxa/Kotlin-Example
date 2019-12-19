@@ -40,9 +40,7 @@ class User private  constructor(
         }
         get() = _login!!
 
-    private val salt: String by lazy {
-        ByteArray(16).also { SecureRandom().nextBytes(it) }.toString()
-    }
+    private var salt: String = ByteArray(16).also { SecureRandom().nextBytes(it) }.toString()
 
     private lateinit var passwordHash: String
 
@@ -89,10 +87,12 @@ class User private  constructor(
         firstName: String,
         lastName: String?,
         email: String,
-        saltHash: String,
+        salt: String,
+        hash: String,
         method: Method
     ) : this(firstName, lastName, email = email, meta = mapOf("src" to method.name)) {
-        passwordHash = saltHash
+        this.salt = salt
+        passwordHash = hash
     }
 
     init {
@@ -179,16 +179,18 @@ class User private  constructor(
             fullName: String,
             email: String? = null,
             phone: String? = null,
-            password: String? = null
+            salt: String? = null,
+            hash: String? = null
         ): User {
             val (firstName, lastName) = fullName.fullNameToPair()
             return when {
                 !phone.isNullOrBlank() -> User(firstName, lastName, phone, Method.csv)
-                !email.isNullOrBlank() && !password.isNullOrBlank() -> User(
+                !email.isNullOrBlank() && !salt.isNullOrBlank() && !hash.isNullOrBlank() -> User(
                     firstName,
                     lastName,
                     email,
-                    password,
+                    salt,
+                    hash,
                     Method.csv
                 )
                 else -> throw IllegalArgumentException("Email or phone must be not null or blank")
