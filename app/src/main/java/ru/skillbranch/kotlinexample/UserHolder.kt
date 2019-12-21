@@ -66,6 +66,7 @@ object UserHolder {
     fun importUsers(source: List<String>): List<User> {
         val result = mutableListOf<User>()
         for (item in source) {
+            println("___Import from: $item ___")
             val (rawFullName, rawEmail, rawSaltHash, rawPhone) = item.split(";")
             val fullName = rawFullName.trim()
             val email = normalizeField(rawEmail)
