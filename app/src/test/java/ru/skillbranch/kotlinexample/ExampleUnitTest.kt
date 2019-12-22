@@ -224,7 +224,8 @@ class ExampleUnitTest {
     @Test
     fun import_user_csv_phone() {
         val source = listOf(" John Doe ;;;+8(050)147-74-12;")
-        val result = UserHolder.importUsers(source)[0].userInfo
+        UserHolder.importUsers(source)
+        val result = UserHolder.getUserByLogin("+80501477412")?.userInfo
         val expectedInfo = """
             firstName: John
             lastName: Doe
@@ -239,17 +240,38 @@ class ExampleUnitTest {
     }
 
     @Test
-    fun import_user_csv_phone_2() {
-        val source = listOf(" John Doe ;;;+8(050)147-74-12;")
-        val result = UserHolder.importUsers(source)[0].userInfo
+    fun import_user_csv_server_1() {
+        val source =
+            listOf("  John    Doe ;JohnDoe@yandex.ru;[B@7591083d:c6adb4becdc64e92857e1e2a0fd6af84;;")
+        UserHolder.importUsers(source)
+        val result = UserHolder.getUserByLogin("johndoe@yandex.ru")?.userInfo
         val expectedInfo = """
             firstName: John
             lastName: Doe
-            login: +80501477412
+            login: johndoe@yandex.ru
             fullName: John Doe
             initials: J D
+            email: JohnDoe@yandex.ru
+            phone: null
+            meta: {src=csv}
+        """.trimIndent()
+        Assert.assertEquals(expectedInfo, result)
+    }
+
+    @Test
+    fun import_user_csv_server_2() {
+        val source =
+            listOf("  John;;[B@77a567e1:a07e337973f9ab704118c73ff827a695;+7 (911) 971-11-11;")
+        UserHolder.importUsers(source)
+        val result = UserHolder.getUserByLogin("+79119711111")?.userInfo
+        val expectedInfo = """
+            firstName: John
+            lastName: null
+            login: +79119711111
+            fullName: John
+            initials: J
             email: null
-            phone: +80501477412
+            phone: +79119711111
             meta: {src=csv}
         """.trimIndent()
         Assert.assertEquals(expectedInfo, result)
@@ -259,7 +281,8 @@ class ExampleUnitTest {
     fun import_user_csv_email() {
         val source =
             listOf(" John Doe ;JohnDoe@unknow.com;[B@7591083d:c6adb4becdc64e92857e1e2a0fd6af84;")
-        val result = UserHolder.importUsers(source)[0].userInfo
+        UserHolder.importUsers(source)
+        val result = UserHolder.getUserByLogin("johndoe@unknow.com")?.userInfo
         val expectedInfo = """
             firstName: John
             lastName: Doe

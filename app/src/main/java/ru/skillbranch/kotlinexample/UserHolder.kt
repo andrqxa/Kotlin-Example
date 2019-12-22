@@ -50,6 +50,10 @@ object UserHolder {
         }
     }
 
+    fun getUserByLogin(login: String): User? {
+        return map[login]
+    }
+
     fun clearMap() {
         map.clear()
     }
@@ -63,8 +67,40 @@ object UserHolder {
         }
     }
 
-    fun importUsers(source: List<String>): List<User> {
-        val result = mutableListOf<User>()
+    //    fun importUsers(source: List<String>): List<User> {
+//        val result = mutableListOf<User>()
+//        for (item in source) {
+//            println("___Import from: $item ___")
+//            val (rawFullName, rawEmail, rawSaltHash, rawPhone) = item.split(";")
+//            val fullName = rawFullName.trim()
+//            val email = normalizeField(rawEmail)
+//            val saltHash = normalizeField(rawSaltHash)
+//            val phone = normalizeField(rawPhone)?.normalizePhone()
+//            val salt: String?
+//            val hash: String?
+//            when (saltHash) {
+//                null -> {
+//                    salt = null
+//                    hash = null
+//                }
+//                else -> {
+//                    val (drawSalt, drawHash) = saltHash.trim().split(":")
+//                    salt = normalizeField(drawSalt)
+//                    hash = normalizeField(drawHash)
+//                }
+//            }
+//            val currentUser = User.makeCsvUser(
+//                fullName = fullName,
+//                email = email,
+//                phone = phone,
+//                salt = salt,
+//                hash = hash
+//            )
+//            result.add(currentUser)
+//        }
+//        return result
+//    }
+    fun importUsers(source: List<String>) {
         for (item in source) {
             println("___Import from: $item ___")
             val (rawFullName, rawEmail, rawSaltHash, rawPhone) = item.split(";")
@@ -92,9 +128,8 @@ object UserHolder {
                 salt = salt,
                 hash = hash
             )
-            result.add(currentUser)
+            map[currentUser.login] = currentUser
         }
-        return result
     }
 
     private fun normalizeField(source: String) = if (source.isEmpty()) null else source.trim()
