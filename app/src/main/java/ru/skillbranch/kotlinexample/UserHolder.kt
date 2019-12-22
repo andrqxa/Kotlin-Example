@@ -100,7 +100,8 @@ object UserHolder {
 //        }
 //        return result
 //    }
-    fun importUsers(source: List<String>) {
+    fun importUsers(source: List<String>): List<User> {
+        val result = mutableListOf<User>()
         for (item in source) {
             println("___Import from: $item ___")
             val (rawFullName, rawEmail, rawSaltHash, rawPhone) = item.split(";")
@@ -129,7 +130,9 @@ object UserHolder {
                 hash = hash
             )
             map[currentUser.login] = currentUser
+            result.add(currentUser)
         }
+        return result
     }
 
     private fun normalizeField(source: String) = if (source.isEmpty()) null else source.trim()
